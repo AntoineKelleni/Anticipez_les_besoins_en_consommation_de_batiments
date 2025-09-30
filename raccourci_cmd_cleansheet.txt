@@ -1,0 +1,107 @@
+1		venv311 : .\.venv311\Scripts\Activate.ps1
+
+2		lancer le serveur dans le venv311 : python -m bentoml serve service:svc --reload
+
+3		ouvrir le swagger : http://127.0.0.1:3000
+
+4		Regénère un request.json propre (0/1 pour les dummies)
+
+		Exécute dans la racine du projet (venv activé) :
+
+@'
+import json, bentoml, unicodedata as ud
+
+ref = bentoml.models.get("energy_model:latest")
+features = list(ref.custom_objects.get("feature_names", []))
+
+def default_value(name: str):
+    n = name.lower()
+    # dummies
+    if name.startswith("PropertyCategory_"):
+        return 1 if name == "PropertyCategory_Office" else 0
+    # ratios
+    if "ratio" in n or "fraction" in n or "share" in n:
+        return 0.7
+    # surfaces / gfa
+    if any(k in n for k in ["gfa","area","surface","size","sqft","sf"]):
+        if "parking" in n: return 30000
+        if "second" in n: return 40000
+        if "largest" in n: return 180000
+        if "building(s" in n or "building_s" in n: return 220000
+        return 250000
+    # étages
+    if "floor" in n or "floors" in n or "story" in n:
+        return 5
+    # âge / années
+    if "age" in n or "année" in n or "an " in n or "year" in n or "years" in n:
+        return 40
+    # nombre de bâtiments
+    if "numberofbuildings" in n or "nbuildings" in n or "buildings" in n:
+        return 1
+    # défaut
+    return 100.0
+
+# construit le payload EN UTILISANT EXACTEMENT les clés du modèle
+payload = { name: default_value(name) for name in features }
+
+with open("request.json","w",encoding="utf-8") as f:
+    json.dump(payload, f, ensure_ascii=False, indent=2)
+
+print("OK -> request.json aligné, nb clés:", len(payload))
+'@ | Out-File -Encoding utf8 rebuild_payload.py
+
+python .\rebuild_payload.py
+type .\request.json
+
+
+DOCKER
+
+
+
+ Tag                          Size       Model Size  Creation Time
+ energy_api:2l7mkre5qo7n3l7m  42.29 KiB  0.00 B      2025-09-30 00:29:56
+
+
+
+Successfully built Bento(tag="energy_api:72idth45rc3hhl7m").
+
+
+
+
+
+
+
+2) Lance l’inspect & la prédiction
+.\make.ps1 inspect
+.\make.ps1 predict
+
+Option rapide (sans éditer de fichier)
+
+Tu peux envoyer un bâtiment “à la volée” :
+
+$payload = @{
+  BuildingAge = 40; NumberofBuildings = 1; NumberofFloors = 5
+  PropertyGFATotal = 250000; PropertyGFAParking = 30000; "PropertyGFABuilding(s)" = 220000
+  LargestPropertyUseTypeGFA = 180000; SecondLargestPropertyUseTypeGFA = 40000
+  PropertyCategory = "Office"
+}
+$json = (@{ payload = $payload } | ConvertTo-Json -Depth 10 -Compress)
+$enc  = New-Object System.Text.UTF8Encoding($false)
+$bytes = $enc.GetBytes($json)
+Invoke-RestMethod -Uri "http://localhost:3000/predict" -Method Post -ContentType "application/json; charset=utf-8" -Body $bytes
+
+
+
+
+1) Pré-prod locale (checklist rapide)
+
+Rebuild si tu changes service.py ou réentraînes :
+
+.\make.ps1 train      # si tu réentraînes
+.\make.ps1 build
+.\make.ps1 run
+.\make.ps1 health
+.\make.ps1 predict
+
+
+Garde un request.json “type” (celui qui marche) dans le repo.

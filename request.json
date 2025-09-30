@@ -1,0 +1,13 @@
+﻿{
+  "BuildingAge": 40,
+  "Surface moyenne par étage": 44000,
+  "Ratio Largest Use / Total": 0.81818,
+  "NumberofBuildings": 1,
+  "NumberofFloors": 5,
+  "PropertyGFATotal": 250000,
+  "PropertyGFAParking": 30000,
+  "PropertyGFABuilding(s)": 220000,
+  "LargestPropertyUseTypeGFA": 180000,
+  "SecondLargestPropertyUseTypeGFA": 40000,
+  "PropertyCategory": "Office"
+}
