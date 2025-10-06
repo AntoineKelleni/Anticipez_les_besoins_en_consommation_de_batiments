@@ -1,0 +1,20 @@
+﻿{"payload": {
+  "BuildingAge": 40,
+  "Surface moyenne par Ã©tage": 250000,
+  "Ratio Largest Use / Total": 0.7,
+  "NumberofBuildings": 1,
+  "NumberofFloors": 5,
+  "PropertyGFATotal": 250000,
+  "PropertyGFAParking": 30000,
+  "PropertyGFABuilding(s)": 220000,
+  "LargestPropertyUseTypeGFA": 180000,
+  "SecondLargestPropertyUseTypeGFA": 40000,
+  "PropertyCategory_Healthcare": 0,
+  "PropertyCategory_Hospitality": 0,
+  "PropertyCategory_Industrial & Storage": 0,
+  "PropertyCategory_Mixed Use": 0,
+  "PropertyCategory_Office": 1,
+  "PropertyCategory_Other": 0,
+  "PropertyCategory_Public / Institutional": 0,
+  "PropertyCategory_Retail & Food": 0
+} }
